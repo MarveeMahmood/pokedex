@@ -130,4 +130,15 @@ showFavoritesButton.addEventListener("click", () => {
         }
     });
 });
-    
+
+// click listener for show all button
+const showAllButton = document.querySelector("#show-all");
+
+showAllButton.addEventListener("click", () => {
+    const cards = pokemonContainer.children;
+
+    Array.from(cards).forEach((card) => {
+        card.style.display = "block";
+    });
+});
+
