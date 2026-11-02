@@ -4,6 +4,7 @@ const url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
 // get html elements
 const pokemonContainer = document.querySelector("#pokemon-container");
 const pokemonDetails = document.querySelector("#pokemon-details");
+const searchInput = document.querySelector("#search-input");
 
 /////////////////////////////////////// function to fetch data from the API
 
@@ -21,7 +22,7 @@ async function getPokemon() {
     const data = await response.json();
     
     pokemonContainer.textContent = "";
-    
+    // for each loop
     data.results.forEach(async (pokemon) => { //async in loop because we are making an API call for each pokemon
 
         const pokemonResponse = await fetch(pokemon.url);
@@ -31,6 +32,8 @@ async function getPokemon() {
 
         const name = document.createElement("h2");
         name.textContent = pokemonData.name;
+
+        card.dataset.name = pokemonData.name;// store the name in a data attribute for search functionality
 
         const image = document.createElement("img");
         image.src = pokemonData.sprites.front_default;
@@ -70,3 +73,22 @@ async function getPokemon() {
 getPokemon();
 
 
+// input listener for search
+searchInput.addEventListener("input", () => {
+        const searchValue = searchInput.value.toLowerCase();
+
+        // console.log(searchValue);
+
+        const cards = pokemonContainer.children;
+
+    Array.from(cards).forEach((card) => {
+       
+        if (card.dataset.name.includes(searchValue)) {
+            card.style.display = "block";
+        } else {
+                card.style.display = "none";
+            }
+    });
+});
+
+    
