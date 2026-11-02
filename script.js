@@ -1,21 +1,27 @@
-const url = "https://pokeapi.co/api/v2/pokemon?limit=20&amp;offset=0";
+// api url
+const url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
 
 // get html elements
 const pokemonContainer = document.querySelector("#pokemon-container");
 const pokemonDetails = document.querySelector("#pokemon-details");
 
-
-
-
-
-
-
 /////////////////////////////////////// function to fetch data from the API
 
 async function getPokemon() {
-    const response = await fetch(url);
-    const data = await response.json();
 
+    pokemonContainer.textContent = "Loading Pokémon...";
+
+    try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    pokemonContainer.textContent = "";
+    
     data.results.forEach(async (pokemon) => { //async in loop because we are making an API call for each pokemon
 
         const pokemonResponse = await fetch(pokemon.url);
@@ -33,27 +39,32 @@ async function getPokemon() {
         card.append(name, image);
         pokemonContainer.appendChild(card);
 
-        // click listener to show details of pokemon cards
-        card.addEventListener("click", () => {
+            // click listener to show details of pokemon cards
+            card.addEventListener("click", () => {
             
-        //console.log(pokemonData);
-        pokemonDetails.innerHTML = `
-        <h2>${pokemonData.name}</h2>
-        <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
-        <p>ID: ${pokemonData.id}</p>
-        <p>Height: ${pokemonData.height}</p>
-        <p>Weight: ${pokemonData.weight}</p>
-        <p>Types: ${pokemonData.types.map(type => type.type.name).join(", ")}</p>
-        <p>Abilities: ${pokemonData.abilities.map(item => item.ability.name).join(", ")}</p>
-        `;
-
-        });
-
-        // console.log(pokemonData.name);
-        // console.log(pokemonData.sprites.front_default);//nestled object and we are accessing the front_default property of the sprites object.
+                //console.log(pokemonData);
+                pokemonDetails.innerHTML = `
+                <h2>${pokemonData.name}</h2>
+                <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
+                <p>ID: ${pokemonData.id}</p>
+                <p>Height: ${pokemonData.height}</p>
+                <p>Weight: ${pokemonData.weight}</p>
+                <p>Types: ${pokemonData.types.map(type => type.type.name).join(", ")}</p>
+                <p>Abilities: ${pokemonData.abilities.map(item => item.ability.name).join(", ")}</p>
+                `;
+            });
 
     });
 
+        // console.log(pokemonData.name);
+
+        // console.log(pokemonData.sprites.front_default);
+        //nestled object and we are accessing the front_default property of the sprites object.
+
+    } catch (error) {
+        pokemonContainer.textContent = "Failed to load Pokémon. Please try again later.";
+        console.error("Error fetching Pokémon data:", error);  
+        }
 }
 
 getPokemon();
