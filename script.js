@@ -6,8 +6,9 @@ const pokemonContainer = document.querySelector("#pokemon-container");
 const pokemonDetails = document.querySelector("#pokemon-details");
 const searchInput = document.querySelector("#search-input");
 
-/////////////////////////////////////// function to fetch data from the API
+let favorites = JSON.parse(localStorage.getItem("favorites")) || []; // retrieve favorites from local storage or initialize as empty array
 
+/////////////////////////////////////// function to fetch data from the API
 async function getPokemon() {
 
     pokemonContainer.textContent = "Loading Pokémon...";
@@ -33,13 +34,37 @@ async function getPokemon() {
         const name = document.createElement("h2");
         name.textContent = pokemonData.name;
 
-        card.dataset.name = pokemonData.name;// store the name in a data attribute for search functionality
-
+        card.dataset.name = pokemonData.name; // store the name in a data attribute for search functionality
+        card.dataset.id = pokemonData.id; //store the id in a data attribute for favorites functionality
         const image = document.createElement("img");
         image.src = pokemonData.sprites.front_default;
         image.alt = pokemonData.name;
 
-        card.append(name, image);
+        const favoriteButton = document.createElement("button");
+        if (favorites.includes(pokemonData.id)) {
+            favoriteButton.textContent = "Remove from Favorites";
+        } else {
+            favoriteButton.textContent = "Add to Favorites";
+        }
+
+        // click listener for favorite button
+        favoriteButton.addEventListener("click", () => {
+            // check if the pokemon is already in favorites
+            if (favorites.includes(pokemonData.id)) {
+                favorites = favorites.filter(id => id !== pokemonData.id);// remove from favorites
+                favoriteButton.textContent = "Add to Favorites";// update button text for pokemon that is removed from favorites
+
+            } else {
+                favorites.push(pokemonData.id);
+                favoriteButton.textContent = "Remove from Favorites";
+            }
+
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+        });// end of click event listener
+
+      
+
+        card.append(name, image, favoriteButton);
         pokemonContainer.appendChild(card);
 
             // click listener to show details of pokemon cards
@@ -55,9 +80,9 @@ async function getPokemon() {
                 <p>Types: ${pokemonData.types.map(type => type.type.name).join(", ")}</p>
                 <p>Abilities: ${pokemonData.abilities.map(item => item.ability.name).join(", ")}</p>
                 `;
-            });
+            });// end of click event listener
 
-    });
+    });// end of for each loop
 
         // console.log(pokemonData.name);
 
@@ -75,11 +100,11 @@ getPokemon();
 
 // input listener for search
 searchInput.addEventListener("input", () => {
-        const searchValue = searchInput.value.toLowerCase();
+    const searchValue = searchInput.value.toLowerCase();
 
         // console.log(searchValue);
 
-        const cards = pokemonContainer.children;
+    const cards = pokemonContainer.children;
 
     Array.from(cards).forEach((card) => {
        
@@ -91,4 +116,18 @@ searchInput.addEventListener("input", () => {
     });
 });
 
+// click listener for show favorites button
+const showFavoritesButton = document.querySelector("#show-favorites");
+
+showFavoritesButton.addEventListener("click", () => {
+    const cards = pokemonContainer.children;
+
+    Array.from(cards).forEach((card) => {
+        if (favorites.includes(Number(card.dataset.id))) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+});
     
