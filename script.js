@@ -23,10 +23,16 @@ async function getPokemon() {
     const data = await response.json();
     
     pokemonContainer.textContent = "";
-    // for each loop
+
+    /////////////////////////////////////////// for each loop
     data.results.forEach(async (pokemon) => { //async in loop because we are making an API call for each pokemon
 
         const pokemonResponse = await fetch(pokemon.url);
+        // check individual pokemon response status
+        if (!pokemonResponse.ok) {
+            throw new Error(`HTTP error! status: ${pokemonResponse.status}`);
+        }
+
         const pokemonData = await pokemonResponse.json();
 
         const card = document.createElement("div");
@@ -48,7 +54,8 @@ async function getPokemon() {
         }
 
         // click listener for favorite button
-        favoriteButton.addEventListener("click", () => {
+        favoriteButton.addEventListener("click", (event) => {
+            event.stopPropagation();// prevent the card click event from firing when the button is clicked
             // check if the pokemon is already in favorites
             if (favorites.includes(pokemonData.id)) {
                 favorites = favorites.filter(id => id !== pokemonData.id);// remove from favorites
@@ -72,6 +79,7 @@ async function getPokemon() {
             
                 //console.log(pokemonData);
                 pokemonDetails.innerHTML = `
+                <button id="close-details">Close</button>
                 <h2>${pokemonData.name}</h2>
                 <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
                 <p>ID: ${pokemonData.id}</p>
@@ -80,6 +88,10 @@ async function getPokemon() {
                 <p>Types: ${pokemonData.types.map(type => type.type.name).join(", ")}</p>
                 <p>Abilities: ${pokemonData.abilities.map(item => item.ability.name).join(", ")}</p>
                 `;
+                    document.querySelector("#close-details").addEventListener("click", () => {
+                        pokemonDetails.innerHTML = "";
+                    });
+
             });// end of click event listener
 
     });// end of for each loop
@@ -120,6 +132,7 @@ searchInput.addEventListener("input", () => {
 const showFavoritesButton = document.querySelector("#show-favorites");
 
 showFavoritesButton.addEventListener("click", () => {
+    
     const cards = pokemonContainer.children;
 
     Array.from(cards).forEach((card) => {
